@@ -45,6 +45,15 @@ impl DotEnv {
 
         Some(DotEnvPair::new(key, value))
     }
+
+    pub fn get(&self, key: &str) -> Option<&str> {
+        for pair in &self.pairs {
+            if pair.key == key {
+                return Some(&pair.value);
+            }
+        }
+        None
+    }
 }
 
 impl DotEnvPair {
