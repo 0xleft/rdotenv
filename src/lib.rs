@@ -1,5 +1,4 @@
 use std::fs;
-use std::panic;
 
 pub struct DotEnv {
     pub pairs: Vec<DotEnvPair>,
