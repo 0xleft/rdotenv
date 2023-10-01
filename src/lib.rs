@@ -16,43 +16,40 @@ impl DotEnv {
         }
     }
 
-    pub fn load(&mut self, path: Option<&str>) {
-        let path = match path {
-            Some(path) => path,
-            None => ".env",
-        };
+    pub fn load(&mut self) {
+        self.load_path(".env");
+    }
 
+    pub fn load_path(&mut self, path: &str) {
         let contents = fs::read_to_string(path)
             .expect("Something went wrong reading the file");
 
         for line in contents.lines() {
             let pair = DotEnv::parse_line(line);
-            if pair.is_none() {
-                continue;
-            }
-            self.pairs.push(pair.unwrap());
+            self.pairs.push(pair);
         }
     }
 
-    pub fn parse_line(line: &str) -> Option<DotEnvPair> {
+    pub fn parse_line(line: &str) -> DotEnvPair {
         let mut split = line.split("=");
         if split.clone().count() != 2 {
-            return None;
+            panic!("Invalid line: {}", line);
         }
 
         let key = split.next().unwrap().to_string();
         let value = split.next().unwrap().to_string();
 
-        Some(DotEnvPair::new(key, value))
+        DotEnvPair::new(key, value)
     }
 
-    pub fn get(&self, key: &str) -> Option<&str> {
+    pub fn get(&self, key: &str) -> &str {
         for pair in &self.pairs {
             if pair.key == key {
-                return Some(&pair.value);
+                return &pair.value;
             }
         }
-        None
+
+        panic!("Key not found: {}", key);
     }
 }
 
