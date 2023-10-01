@@ -1,4 +1,5 @@
 use std::fs;
+use std::panic;
 
 pub struct DotEnv {
     pub pairs: Vec<DotEnvPair>,
@@ -27,29 +28,23 @@ impl DotEnv {
 
         for line in contents.lines() {
             let pair = DotEnv::parse_line(line);
-            self.pairs.push(pair);
+            if pair.is_none() {
+                continue;
+            }
+            self.pairs.push(pair.unwrap());
         }
     }
 
-    pub fn parse_line(line: &str) -> DotEnvPair {
-        let mut key = String::new();
-        let mut value = String::new();
-
-        let mut is_key = true;
-        for c in line.chars() {
-            if c == '=' {
-                is_key = false;
-                continue;
-            }
-
-            if is_key {
-                key.push(c);
-            } else {
-                value.push(c);
-            }
+    pub fn parse_line(line: &str) -> Option<DotEnvPair> {
+        let mut split = line.split("=");
+        if split.clone().count() != 2 {
+            return None;
         }
 
-        DotEnvPair::new(key, value)
+        let key = split.next().unwrap().to_string();
+        let value = split.next().unwrap().to_string();
+
+        Some(DotEnvPair::new(key, value))
     }
 }
 
